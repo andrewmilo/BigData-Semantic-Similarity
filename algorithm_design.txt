@@ -1,0 +1,40 @@
+We will have 4 map/reduce phases
+
+First we get the total number of documents: totalDocuments
+
+Phase 1: WordCount problem
+	Map: 
+		Each line has a set of terms corresponding to a document id. We map this as
+		(term, docID) -> 1  (term, document id pair to the count of 1)
+	Reduce:
+		Each (term, docID) pair will have a bunch of counts of 1 : (term, docID) -> [1,1,1,1,...,1]
+		We reduce this to the sum of the values: (term, docID) -> wordCount
+
+Phase 2: Get total word count for each document. This is the info to calculate tf
+	Map: 
+		We now have (term, docID) -> wordCount. 
+		We map this such that we get docID -> (word, wordCount)
+	Reduce:
+		Each docID will now correspond to a list of words and word counts :
+		docID -> [(term1, wordCount1), (term2, wordCount2), (term3, wordCount3),...,(termN, wordCountN)]
+		We reduce this to the sum of the total number of values which will give us the total number of terms in a document:
+		(term, docID) -> (wordCount, totalWordsInDocument)
+		
+Phase 3: Get the number of documents
+	Map:
+		We currently have (term, docID) -> (wordCount, totalWordsInDocument)
+		Map this such that word -> (docID, wordCount, totalWordsInDocument)
+	Reduce:
+		We would now have a document id, word count, and words in that particular document for each word:
+		word -> (docID1, wordCount1, totalWordsInDocument1), (docID2, wordCount2, totalWordsInDocument2), (docIDN, wordCountN, totalWordsInDocumentN)
+		With this, we can compute the total documents that contains the word by taking the sum of the total number of values leaving us with:
+		(word, docID) -> (wordCount, totalWordsInDocument, totalDocumentsWithWord)
+
+Phase 4: Calculate tf-idf
+	Map:
+		We now have (word, docID) -> (wordCount, totalWordsInDocument, totalDocumentsWithWord)
+		So for each document we get the tf by wordCount/totalWordsinDocument.
+							 we get the idf by log(totalDocuments/totalDocumentsWithWord)
+							 we multiply these two results together and get the tf-idf
+		(word, docID) -> tf-idf
+	
