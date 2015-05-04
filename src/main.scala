@@ -7,8 +7,14 @@ object main {
     val conf = new SparkConf().setAppName("Hello").setMaster("local[*]")
     val sc = new SparkContext(conf)
     
+    val gene = "gene_.*_gene".r.toString()
+   
     val lines = sc.textFile("project3.dat")
-    val counts = lines.flatMap(line => line.split(" ")).map(word => (word,1)).reduceByKey(_ + _)
-    counts.foreach {x => println(x)}
+    
+    val counts = lines.flatMap(line => line.split("\\s+").filter { x => x.matches(gene) })
+         .map(word => (word, 1))
+         .reduceByKey(_ + _)
+         
+         counts.foreach(x => println(x))  
   }
 }
