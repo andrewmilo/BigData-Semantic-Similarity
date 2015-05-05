@@ -36,13 +36,13 @@ Phase 4: Calculate tf-idf
 		So for each document we get the tf by wordCount/totalWordsinDocument.
 							 we get the idf by log(totalDocuments/totalDocumentsWithTerm)
 							 we multiply these two results together and get the tf-idf
-		(word, docID) -> tf-idf
+		(term, docID) -> tf-idf and map it appropriately to:
+		(term) -> (docID, tf-idf)
+	We'll have all of these in the end for each term:
+		term1 -> [(docID1, tf-idf1), (docID2, tf-idf2),...,(docIDN, tf-idfN)] Let's call this vector A
+		term2 -> [(docID1, tf-idf1), (docID2, tf-idf2),...,(docIDN, tf-idfN)] Let's call this vector B
+		To compute the similarity between term1 and term2 we'd do (A * B)/ (|A| * |B|) 
 		
----What do we do after? Is there a reducer that will give a general tf-idf for each word regardless of document?
----How does this correlate to term similarity? It's not Levenshtein distance I presume since it has no correlation to tf-idf?
----Is term similarity a different problem? If so, how do we reflect tf-idf it in the output since each tf-idf correlates to a term in a specific
-   document rather than overall.
----Is there a way to iterate over flatmaps? How do we hold the document id?
 		
 		
 	

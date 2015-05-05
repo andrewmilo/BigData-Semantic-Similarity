@@ -14,9 +14,10 @@ object main {
     val lines = sc.textFile("project3.dat")
     val totalDocs = lines.count() //Counting the total number of documents
     
-    var docID = -1 //temporary value for document id
+    var docID = "" //temporary value for document id
     
     //Word Count
+      
     val counts = lines.flatMap(line => line.split("\\s+")
                  .filter { x => x.matches(gene) })
                  .map(word => (word, 1))
