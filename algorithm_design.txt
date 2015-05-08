@@ -32,7 +32,7 @@ Phase 3: Get the number of documents with the specific term
 
 Phase 4: Calculate tf-idf
 	Map:
-		We now have (word, docID) -> (wordCount, totalWordsInDocument, totalDocumentsWithTerm)
+		We now have (term, docID) -> (wordCount, totalWordsInDocument, totalDocumentsWithTerm)
 		So for each document we get the tf by wordCount/totalWordsinDocument.
 							 we get the idf by log(totalDocuments/totalDocumentsWithTerm)
 							 we multiply these two results together and get the tf-idf
