@@ -18,18 +18,17 @@ object main {
     
     //Word Count
     val counts =   lines.flatMap{
-     
                          line => lazy val s = line.split("\\s+")
                          val count = s.length
                          val id = s.head
                          s.filter(word => word.matches(gene)).map(word => ((word, id, count), 1))
                    }.reduceByKey(_+_)
-   // counts holds : (term, documentID) => wordCount
-    counts.foreach(x => println(x)) 
+   // counts holds : (term, documentID, totalWordsInDocument) => wordCount
+   // counts.foreach(x => println(x)) 
     
-    //val counts2 = counts.map( pair => (pair._1._2, (pair._1._1, pair._2)) ).reduceByKey((a,b) => (a._1,a._2 + b._2))
+    val counts2 = counts.map( quad => (quad._1._1, (quad._1._2, quad._2, quad._1._3, 1)) ).reduceByKey((a,b) => (a._1,a._2,a._3 ,(a._4 + b._4)))
     
-   // counts2.foreach(x => println(x))
+    counts2.foreach(x => println(x))
                      
                    
   }
