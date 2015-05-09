@@ -16,23 +16,21 @@ object main {
     val lines = sc.textFile("project3.dat")
     val totalDocs = lines.count() //Counting the total number of documents
     
-    var docID = "" //temporary value for document id
-      
-    var words = new ListBuffer[String]
-    var all = new ListBuffer[String]
-    var realAll = sc.parallelize(all)
-
-    
     //Word Count
-
-    
     val counts =   lines.flatMap{
+     
                          line => lazy val s = line.split("\\s+")
+                         val count = s.length
                          val id = s.head
-                         s.filter(word => word.matches(gene)).map(word => ((word, id), 1))
+                         s.filter(word => word.matches(gene)).map(word => ((word, id, count), 1))
                    }.reduceByKey(_+_)
-
+   // counts holds : (term, documentID) => wordCount
     counts.foreach(x => println(x)) 
+    
+    //val counts2 = counts.map( pair => (pair._1._2, (pair._1._1, pair._2)) ).reduceByKey((a,b) => (a._1,a._2 + b._2))
+    
+   // counts2.foreach(x => println(x))
+                     
+                   
   }
-  
 }

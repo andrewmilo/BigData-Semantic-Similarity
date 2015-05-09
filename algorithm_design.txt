@@ -23,7 +23,7 @@ Phase 2: Get total word count for each document. This is the info to calculate t
 Phase 3: Get the number of documents with the specific term
 	Map:
 		We currently have (term, docID) -> (wordCount, totalWordsInDocument)
-		Map this such that word -> (docID, wordCount, totalWordsInDocument)
+		Map this such that term -> (docID, wordCount, totalWordsInDocument)
 	Reduce:
 		We would now have a document id, word count, and words in that particular document for each word:
 		term -> [(docID1, wordCount1, totalWordsInDocument1), (docID2, wordCount2, totalWordsInDocument2), (docIDN, wordCountN, totalWordsInDocumentN)]
@@ -44,5 +44,7 @@ Phase 4: Calculate tf-idf
 		To compute the similarity between term1 and term2 we'd do (A * B)/ (|A| * |B|) 
 		
 		
-		
+		QUESTION
+		--- FOR TOTAL WORDS FOR DOCUMENT< DO WE ONLY GET TOTAL GENES PER LINE
+		---First flatmap, inside it, map docID to total words in the document
 	
