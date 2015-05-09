@@ -2,7 +2,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
 
-import scala.collection.mutable.ListBuffer
+import scala.math.log
 
 object main {
   
@@ -24,11 +24,19 @@ object main {
                          s.filter(word => word.matches(gene)).map(word => ((word, id, count), 1))
                    }.reduceByKey(_+_)
    // counts holds : (term, documentID, totalWordsInDocument) => wordCount
-   // counts.foreach(x => println(x)) 
+    //counts.foreach(x => println(x)) 
     
-    val counts2 = counts.map( quad => (quad._1._1, (quad._1._2, quad._2, quad._1._3, 1)) ).reduceByKey((a,b) => (a._1,a._2,a._3 ,(a._4 + b._4)))
-    
+    val counts2 = counts.map( quad => (quad._1._1, (quad._1._2, quad._2, quad._1._3, 1)) ).reduceByKey((a,b) => (a._1,a._2,a._3,(a._4 + b._4)))
+    //counts2 holds : term => (documentsID, wordCount, totalWordsInDocument, NumDocumentsTermAppearsIn)
     counts2.foreach(x => println(x))
+    
+    val counts3 = counts2.map(quad => ((quad._1,quad._2._1),((quad._2._2/quad._2._3.toDouble) * log(totalDocs/quad._2._4))))
+    
+    val counts4 = counts3.map(pair => (pair._1._1, (pair._1._2, pair._2,1))).reduceByKey((a,b)=> (a._1,a._2,(a._3 + b._3)))
+    
+    //counts4.foreach(x => println(x))
+    
+    
                      
                    
   }
