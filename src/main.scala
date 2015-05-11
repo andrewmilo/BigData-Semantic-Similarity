@@ -43,7 +43,8 @@ object main {
     
     counts3.sortBy((a=> a._1),true, 10).foreach(x => println(x))
     
-   val counts4 = counts3.cartesian(counts3)
+   val counts4 = counts3.cartesian(counts3).filter(pair => pair._1._1 > pair._2._1)
+   //FILTER BASED ON LEXICOGRAPHICAL DIFFERENCE TO GET ALL COMBINATIONS
    //COUNTS4 CONTAINS ALL OF THE PAIRS WHICH WE MUST CALCULATE THE COSINE SIMILARITY
                    
   }
