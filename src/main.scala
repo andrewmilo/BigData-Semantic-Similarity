@@ -14,7 +14,7 @@ object main {
     
     val gene = "gene_.*_gene".r.toString() // Our filter for gene_SOMETHING_gene
    
-    val lines = sc.textFile("project3.dat")
+    val lines = sc.textFile("project3.dat",6)
     
     val totalDocs = lines.count() //Counting the total number of documents
       
@@ -41,37 +41,11 @@ object main {
    //val withNorms = counts4.map(pair => ((pair._1._1,pair._2._1), productOfNorms(pair._1._2,pair._2._2)))
   // withNorms.foreach(x=>println(x))
    
-   val withDotProduct =  counts4.map(pair => ((pair._1._1,pair._2._1), cosSimilarity(pair._1._2,pair._2._2)))
-   withDotProduct.filter(x=> x._2> 0.0).foreach(x=>println(x))
-   /*
-   val list1: Iterable[(String,Double)] =  Iterable( ("a",3), ("b",2), ("d",5), ("e",5) )
-   val list2: Iterable[(String,Double)] =  Iterable( ("a",2), ("c",2), ("e",7) )
-   val x = dotProduct(list1,list2)
-   println(x)
-   * */
-   
-   /*
-     (TERM, TERM)
-   val c4 = counts4.map(pair => (pair._1._1, pair._2._1))
-      
-   val normsA = counts4.keys.values.map(x => pow(x.map(y=> pow(y._2, 2)).sum, .5))
-   val normsB = counts4.values.values.map(x => pow(x.map(y=> pow(y._2, 2)).sum, .5))
-  
-   val counts5 = counts4.keys.values.flatMap(f => f)
-   val counts6 = counts4.values.values.flatMap(f => f)
-   
-   val dotProduct = counts5.cogroup(counts6).filter(vals => vals._2._1.size > 0 && vals._2._2.size > 0).map(a => (a._2._1.head * a._2._2.head)).sum
-  
-   //val c8 = dotProduct.zip(c4)
-   */
-   /*
-   
-   val counts5 = counts4.map(pair => ((pair._1._1,pair._2._1) , (pair._1._2,pair._2._2) )).collectAsMap()
-  // l.foreach(x => println("hello"))
-   
-   //val cos = l.map(lists => (cosSimilarity(lists._1,lists._2)))
-   //cos.foreach(x => println(x))
-  */        
+   val withDotProduct =  counts4.map(pair => (cosSimilarity(pair._1._2,pair._2._2),(pair._1._1,pair._2._1))).filter(x=> x._1 > 0.0)
+  // withDotProduct.cache
+   withDotProduct.sortByKey().collect.foreach(x=>println(x))
+  // println(withDotProduct.count())
+
   }
   
   def cosSimilarity(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double = {
