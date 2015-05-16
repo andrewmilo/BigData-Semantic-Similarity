@@ -38,16 +38,18 @@ object main {
    //FILTER BASED ON LEXICOGRAPHICAL DIFFERENCE TO GET ALL COMBINATIONS
    //COUNTS4 CONTAINS ALL OF THE PAIRS WHICH WE MUST CALCULATE THE COSINE SIMILARITY
    
-   val withNorms = counts4.map(pair => ((pair._1._1,pair._2._1), productOfNorms(pair._1._2,pair._2._2)))
+   //val withNorms = counts4.map(pair => ((pair._1._1,pair._2._1), productOfNorms(pair._1._2,pair._2._2)))
   // withNorms.foreach(x=>println(x))
    
-   val withDotProduct =  counts4.map(pair => ((pair._1._1,pair._2._1), dotProduct(pair._1._2,pair._2._2)))
-   withDotProduct.foreach(x=>println(x))
-   
+   val withDotProduct =  counts4.map(pair => ((pair._1._1,pair._2._1), cosSimilarity(pair._1._2,pair._2._2)))
+   withDotProduct.filter(x=> x._2> 0.0).foreach(x=>println(x))
+   /*
    val list1: Iterable[(String,Double)] =  Iterable( ("a",3), ("b",2), ("d",5), ("e",5) )
    val list2: Iterable[(String,Double)] =  Iterable( ("a",2), ("c",2), ("e",7) )
    val x = dotProduct(list1,list2)
    println(x)
+   * */
+   
    /*
      (TERM, TERM)
    val c4 = counts4.map(pair => (pair._1._1, pair._2._1))
@@ -72,6 +74,10 @@ object main {
   */        
   }
   
+  def cosSimilarity(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double = {
+    dotProduct(A,B)/productOfNorms(A,B)
+  }
+  
   def productOfNorms(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double = {
     getNorm(A) * getNorm(B)
   }
@@ -81,7 +87,11 @@ object main {
   }
 
   def dotProduct(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double = {
-
+    /*
+      A.foreach(x=>println(x))
+      println("-------------------------------------------")
+      B.foreach(x=>println(x))
+*/
       val dotProduct = (A ++ B).groupBy(_._1).mapValues(_.map(_._2)).filter{
         
         case(vals) => (vals._2.size > 1)
@@ -94,8 +104,9 @@ object main {
       
       
 */
-      println("I'm here now: ", dotProduct.size)
-      dotProduct.foreach(x=>println(x))
+      //println("I'm here now: ", dotProduct.size)
+      //dotProduct.foreach(x=>println(x))
+      //println(dotProduct.sum)
       return dotProduct.sum
    
   }
