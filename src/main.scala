@@ -1,20 +1,21 @@
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
-import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.rdd.RDD
 
 import scala.math.log
 import scala.math.pow
 
 object main {
-  val conf = new SparkConf().setAppName("Project_3").setMaster("local[*]");
-  val sc = new SparkContext(conf)
+ 
   def main(args: Array[String]): Unit = {
+    
+    val conf = new SparkConf().setAppName("Project_3").setMaster("local[4]");
+    val sc = new SparkContext(conf)
     
     val gene = "gene_.*_gene".r.toString() // Our filter for gene_SOMETHING_gene
    
-    val lines = sc.textFile("project3.dat",6)
+    val lines = sc.textFile("project3.dat")
 
     val totalDocs = lines.count() //Get |D| (total number of documents)
     
@@ -37,15 +38,19 @@ object main {
 
    val cosSimPairs =  termPairs.map(pair => (cosSimilarity(pair._1._2,pair._2._2),(pair._1._1,pair._2._1))).filter(x=> x._1 > 0.0)
    // We map each term pair to their cosine similarity and pair of term names, filtering out the ones with 0 similarity since most will be 0 and don't give us useful information
-   cosSimPairs.foreach(x=>println(x))
+   cosSimPairs.sortByKey().collect.foreach(x=>println(x))
   }
   
   def cosSimilarity(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double = {
-    dotProduct(A,B)/productOfNorms(A,B)
+    val dProd = dotProduct(A,B)
+    val normProd = productOfNorms(A,B)
+    dProd/normProd
   }
   
   def productOfNorms(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double = {
-    getNorm(A) * getNorm(B)
+    val normA = getNorm(A)
+    val normB = getNorm(B)
+    normA * normB
   }
   
   def getNorm(vector: Iterable[(String,Double)]): Double = {
