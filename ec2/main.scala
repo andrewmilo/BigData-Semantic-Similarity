@@ -1,12 +1,11 @@
 import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 
-import scala.math.log
+import scala.math.log10
 import scala.math.pow
 
-object main {
+object main extends Serializable{
  
   def main(args: Array[String]): Unit = {
     
@@ -15,52 +14,60 @@ object main {
     val lines = sc.textFile("s3n://AKIAIMAWEMPBU47GAOKA:wOEYcHQU4chOMlJRTFcsNh3BNf7fkoHLO8TWWJ6Q@bigdataproject3/project3.dat")
 
     val totalDocs = lines.count() //Get |D| (total number of documents)
-    
+
     val info = lines.flatMap {
                          line => lazy val words = line.split("\\s+")
-                         words.filter(term => term.matches(gene)).map(term => ( (term, words.head, words.length ), 1) )//.map(word => ( (word: term, ((id: lineID, totalCount: totalWordCount):Document , 1: countInDoc) )))
+                         /*This code is if we only want to count the total genes per document rather than total words per document
+                           val filteredWords = words.filter(term => term.matches(gene))
+                           filteredWords.map(term => ( (term, words.head, filteredWords.length ), 1) )  
+                         */
+                         
+                         words.filter(term => term.matches(gene)).map(term => ( (term, words.head, words.length-1 ), 1) )
                    }.reduceByKey(_+_)
     //info contains : (term, documentID, totalDocumentWordCount) => wordCountForTerm
 
+    //tfIdfInfo remaps the info to make term the key
     val tfIdfInfo = info.map( info => ( info._1._1, (info._1._2, info._1._3, info._2 )))
-    //tfIdfInfo remaps the info and now contains : term => (documentID, totalDocumentWordCount, wordCountForTerm)
+    // It contains : term => (documentID, totalDocumentWordCount, wordCountForTerm)
     
-    val termTfIdf = tfIdfInfo.groupByKey().mapValues(array => array.map(pair => (pair._1, (pair._3/pair._2.toDouble) * log(totalDocs/array.size))).filter(x => x._2 >0)).filter(x => x._2.size > 0)
-    
-    //val termTfIdf = tfIdfInfo.groupByKey().mapValues(array => array.map(pair => (pair._1, (pair._3/pair._2.toDouble) * log(totalDocs/array.size))))
-    /*termTfIdf calculates each term's tf/idf  per document based on tfIdfInfo and groups them by the key(term)
-      It contains : term => List[documentID, tf/idf] */
-    
-   val termPairs = termTfIdf.cartesian(termTfIdf).filter(pair => pair._1._1 > pair._2._1)
-   /*We get all combinations of terms and filter out duplicates based on lexicographical difference
-     We now have all the information needed to calculate the cosine similarity between pairs */
+   //termTfIdf calculates each term's tf/idf  per document based on tfIdfInfo and groups them by the key (term)
+    val termTfIdf = tfIdfInfo.groupByKey()
+                             .mapValues(array => array.map(triple => (triple._1, ( (triple._3/triple._2.toDouble) * log10(totalDocs/array.size.toDouble) ) )))//.filter(x => x._2 > 0)).filter(x => x._2.size > 0)
+    //It contains : term => List[documentID, tf/idf] 
 
-   val cosSimPairs =  termPairs.map(pair => (cosSimilarity(pair._1._2,pair._2._2),(pair._1._1,pair._2._1))).filter(x=> x._1 > 0.0)
-   // We map each term pair to their cosine similarity and pair of term names, filtering out the ones with 0 similarity since most will be 0 and don't give us useful information
-   cosSimPairs.sortByKey().collect.foreach(x=>println(x))
+   //We get all permutations of terms and filter out duplicates based on lexicographical difference giving us the distinct combinations of terms
+    val termPairs = termTfIdf.cartesian(termTfIdf).filter(pair => pair._1._1 > pair._2._1)
+    //We now have all the information needed to calculate the cosine similarity between pairs 
+
+    // We map each term pair to their cosine similarity and pair of term names, filtering out the ones with 0 similarity since most will be 0 and don't give us useful information
+    val cosSimPairs =  termPairs.map(pair => (cosSimilarity(pair._1._2,pair._2._2),(pair._1._1,pair._2._1)))
+                                .filter(x=> x._1 > 0.0)
+   
+    //Sort the pairs, collect them  to output their true sorted order for viewing
+    cosSimPairs.sortByKey(false).collect.foreach( termPair => println(termPair))
   }
   
-  def cosSimilarity(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double = {
-    val dProd = dotProduct(A,B)
-    val normProd = productOfNorms(A,B)
-    dProd/normProd
+  //Returns the cosine Similarity of two Iterables
+  def cosSimilarity(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double  = {
+    dotProduct(A,B) / productOfNorms(A,B)
   }
   
+  //Returns the product of the norms of two Iterables
   def productOfNorms(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double = {
-    val normA = getNorm(A)
-    val normB = getNorm(B)
-    normA * normB
+    getNorm(A) * getNorm(B)
   }
-  
+  //Returns the norm of an Iterable (Euclidean Distance)
   def getNorm(vector: Iterable[(String,Double)]): Double = {
     pow(vector.map(x => pow(x._2, 2)).sum, .5)
   }
 
+  //Returns the dot product of two Iterables
   def dotProduct(A:Iterable[(String,Double)],B:Iterable[(String,Double)]): Double = {
-      val dotProduct = (A ++ B).groupBy(_._1).mapValues(_.map(_._2)).filter{     
-        case(vals) => (vals._2.size > 1)
-      }
-      .map(x=>x._2.product)
+    /* Append the Iterables to each other and group them by the key (document ID) and get only the values in the Iterable
+       where there are at least 2. This will in turn optimize the dot product calculation since we only take the product of
+       matching non-zero values */
+    val dotProduct = (A ++ B).groupBy(_._1).mapValues(_.map(_._2)).filter(_._2.size > 1)
+                     .map(x => x._2.product)
       
       dotProduct.sum 
   }

@@ -24,8 +24,8 @@ object main {
                            val filteredWords = words.filter(term => term.matches(gene))
                            filteredWords.map(term => ( (term, words.head, filteredWords.length ), 1) )  
                          */
-                         words.filter(term => term.matches(gene)).map(term => ( (term, words.head, words.length-1 ), 1) )
                          
+                         words.filter(term => term.matches(gene)).map(term => ( (term, words.head, words.length-1 ), 1) )
                    }.reduceByKey(_+_)
     //info contains : (term, documentID, totalDocumentWordCount) => wordCountForTerm
 
