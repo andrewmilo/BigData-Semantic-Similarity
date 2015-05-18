@@ -1,0 +1,3 @@
+1 gene_a_gene gene_b_gene gene_c_gene gene_d_gene gene_a_gene adf afd ad
+2 gene_a_gene gene_c_gene gene_e_gene bobsdfda adfad
+3 gene_e_gene gene_f_gene bob

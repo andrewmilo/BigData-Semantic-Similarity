@@ -14,13 +14,16 @@ object main {
     
     val gene = "gene_.*_gene".r.toString() // Our filter for gene_SOMETHING_gene
    
-    val lines = sc.textFile("test.txt")
+    val lines = sc.textFile(args(0))
 
     val totalDocs = lines.count() //Get |D| (total number of documents)
 
     val info = lines.flatMap {
                          line => lazy val words = line.split("\\s+")
-                         words.filter(term => term.matches(gene)).map(term => ( (term, words.head, words.length-1 ), 1) )
+                         val filteredWords = words.filter(term => term.matches(gene))
+                         filteredWords.map(term => ( (term, words.head, filteredWords.length ), 1) )
+                         //words.filter(term => term.matches(gene)).map(term => ( (term, words.head, words.length-1 ), 1) )
+                         
                    }.reduceByKey(_+_)
     //info contains : (term, documentID, totalDocumentWordCount) => wordCountForTerm
 
