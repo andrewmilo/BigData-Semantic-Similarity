@@ -20,9 +20,11 @@ object main {
 
     val info = lines.flatMap {
                          line => lazy val words = line.split("\\s+")
-                         val filteredWords = words.filter(term => term.matches(gene))
-                         filteredWords.map(term => ( (term, words.head, filteredWords.length ), 1) )
-                         //words.filter(term => term.matches(gene)).map(term => ( (term, words.head, words.length-1 ), 1) )
+                         /*This code is if we only want to count the total genes per document rather than total words per document
+                           val filteredWords = words.filter(term => term.matches(gene))
+                           filteredWords.map(term => ( (term, words.head, filteredWords.length ), 1) )  
+                         */
+                         words.filter(term => term.matches(gene)).map(term => ( (term, words.head, words.length-1 ), 1) )
                          
                    }.reduceByKey(_+_)
     //info contains : (term, documentID, totalDocumentWordCount) => wordCountForTerm
