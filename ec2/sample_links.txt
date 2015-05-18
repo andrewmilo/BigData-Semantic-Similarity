@@ -1,0 +1,7 @@
+100 -> https://s3.amazonaws.com/bigdataproject3/100.dat
+1000 -> https://s3.amazonaws.com/bigdataproject3/1000.dat
+5000 -> https://s3.amazonaws.com/bigdataproject3/5000.dat
+10000 -> https://s3.amazonaws.com/bigdataproject3/10000.dat
+project3.dat -> https://s3.amazonaws.com/bigdataproject3/project3.dat
+
+format -> s3n://AKIAIMAWEMPBU47GAOKA:wOEYcHQU4chOMlJRTFcsNh3BNf7fkoHLO8TWWJ6Q@bigdataproject3/project3.dat
