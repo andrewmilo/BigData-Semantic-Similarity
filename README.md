@@ -1,5 +1,10 @@
 The goal of this project was to calculate the semantic similarity of terms in a document using Apache Spark & Scala.
 
+## Tested On The Following File Sizes
+    1gb
+    10gb
+    100gb
+
 ## Project Steps
 
     1.	Get the totalNumberOfDocuments count
@@ -27,7 +32,7 @@ The goal of this project was to calculate the semantic similarity of terms in a 
 
     12.	We map each pair to their cosineSimilarity, pairNames and filter out those genes with 0 similarity since they don’t give us much useful information and speeds up the program
 
-    13.	 MAP : cosineSimilarity => (term1, term2)
+    13.	MAP : cosineSimilarity => (term1, term2)
 
     14.	Sort by the cosine similarity in descending order. This also would allow us to group pairs with the same cosineSimilarity if we chose to do so.
 
